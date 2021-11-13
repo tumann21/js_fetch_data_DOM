@@ -20,41 +20,29 @@ function getPhones() {
 
       return response.json();
     })
-    .then(result => result.map(el => {
-      getPhonesDetails(el.id);
-    }))
-    .catch(error => error);
+    .then(result => {
+      const ph = result.map(el =>
+        getPhonesDetails(el.id));
+
+      Promise.all([...ph])
+        .then(res => res.forEach(element => {
+          const li = document.createElement('li');
+
+          li.append(element.name);
+          ol.append(li);
+        }),
+
+        body.append(ol),
+        );
+    });
 }
 
 url1 = url1.substring(0, url1.indexOf(':phoneId'));
 
 function getPhonesDetails(id) {
-  const listOfPhones = [];
-
   return fetch(`${url1}${id}.json`)
-    .then(response => {
-      if (!response.ok) {
-        return Promise.reject(Error('error'));
-      }
-
-      return response.json();
-    })
-    .then(res => {
-      listOfPhones.push(res.name);
-      addingList(listOfPhones);
-    })
-    .catch(error => error);
+    .then(response => response.json())
+    .catch(error => new Error(error));
 }
 
 getPhones();
-
-function addingList(phones) {
-  phones.forEach(element => {
-    const li = document.createElement('li');
-
-    li.append(element);
-    ol.append(li);
-  });
-
-  body.append(ol);
-}
